@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import UsersFetcher from './components/UsersFetcher';
 import Home from './pages/Home';
 import Overview from './pages/Overview';
 import SuccessStories from './pages/SuccessStories';
@@ -48,76 +49,79 @@ import Sitemap from './pages/Sitemap';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/classes" element={<Classes />} />
-        <Route path="/trainers" element={<Trainers />} />
-        <Route path="/membership" element={<Membership />} />
-        <Route path="/schedule" element={<Schedule />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgetPage />} />
+    <>
+      <UsersFetcher />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/trainers" element={<Trainers />} />
+          <Route path="/membership" element={<Membership />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgetPage />} />
 
-        {/* Submenu Pages */}
-        <Route path="/overview" element={<Overview />} />
-        <Route path="/success-stories" element={<SuccessStories />} />
-        <Route path="/promotions" element={<Promotions />} />
-        <Route path="/our-story" element={<OurStory />} />
-        <Route path="/meet-the-team" element={<MeetTheTeam />} />
-        <Route path="/our-facilities" element={<OurFacilities />} />
-        <Route path="/strength-training" element={<StrengthTraining />} />
-        <Route path="/yoga-classes" element={<YogaClasses />} />
-        <Route path="/cardio-blast" element={<CardioBlast />} />
-        <Route path="/crossfit-sessions" element={<CrossfitSessions />} />
-        <Route path="/personal-trainers" element={<PersonalTrainers />} />
-        <Route path="/nutrition-experts" element={<NutritionExperts />} />
-        <Route path="/physiotherapists" element={<Physiotherapists />} />
-        <Route path="/plans-pricing" element={<PlansPricing />} />
-        <Route path="/corporate-membership" element={<CorporateMembership />} />
-        <Route path="/family-packages" element={<FamilyPackages />} />
-        <Route path="/class-schedule" element={<ClassSchedule />} />
-        <Route path="/trainer-availability" element={<TrainerAvailability />} />
-        <Route path="/events-calendar" element={<EventsCalendar />} />
-        <Route path="/contact-form" element={<ContactForm />} />
-        <Route path="/location-map" element={<LocationMap />} />
-        <Route path="/faqs" element={<Faqs />} />
+          {/* Submenu Pages */}
+          <Route path="/overview" element={<Overview />} />
+          <Route path="/success-stories" element={<SuccessStories />} />
+          <Route path="/promotions" element={<Promotions />} />
+          <Route path="/our-story" element={<OurStory />} />
+          <Route path="/meet-the-team" element={<MeetTheTeam />} />
+          <Route path="/our-facilities" element={<OurFacilities />} />
+          <Route path="/strength-training" element={<StrengthTraining />} />
+          <Route path="/yoga-classes" element={<YogaClasses />} />
+          <Route path="/cardio-blast" element={<CardioBlast />} />
+          <Route path="/crossfit-sessions" element={<CrossfitSessions />} />
+          <Route path="/personal-trainers" element={<PersonalTrainers />} />
+          <Route path="/nutrition-experts" element={<NutritionExperts />} />
+          <Route path="/physiotherapists" element={<Physiotherapists />} />
+          <Route path="/plans-pricing" element={<PlansPricing />} />
+          <Route path="/corporate-membership" element={<CorporateMembership />} />
+          <Route path="/family-packages" element={<FamilyPackages />} />
+          <Route path="/class-schedule" element={<ClassSchedule />} />
+          <Route path="/trainer-availability" element={<TrainerAvailability />} />
+          <Route path="/events-calendar" element={<EventsCalendar />} />
+          <Route path="/contact-form" element={<ContactForm />} />
+          <Route path="/location-map" element={<LocationMap />} />
+          <Route path="/faqs" element={<Faqs />} />
 
-        {/* Footer Pages */}
-        <Route path="/cardio" element={<Cardio />} />
-        <Route path="/yoga" element={<Yoga />} />
-        <Route path="/nutrition" element={<Nutrition />} />
-        <Route path="/physiotherapy" element={<Physiotherapy />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/refund" element={<Refund />} />
-        <Route path="/sitemap" element={<Sitemap />} />
-        <Route path="/faq" element={<Faq />} />
+          {/* Footer Pages */}
+          <Route path="/cardio" element={<Cardio />} />
+          <Route path="/yoga" element={<Yoga />} />
+          <Route path="/nutrition" element={<Nutrition />} />
+          <Route path="/physiotherapy" element={<Physiotherapy />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/refund" element={<Refund />} />
+          <Route path="/sitemap" element={<Sitemap />} />
+          <Route path="/faq" element={<Faq />} />
 
-        {/* Protected Routes */}
-        <Route path="/admin" element={
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
+          {/* Protected Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
 
-        <Route path="/trainer" element={
-          <ProtectedRoute allowedRoles={["trainer"]}>
-            <TrainerDashboard />
-          </ProtectedRoute>
-        } />
+          <Route path="/trainer" element={
+            <ProtectedRoute allowedRoles={["trainer"]}>
+              <TrainerDashboard />
+            </ProtectedRoute>
+          } />
 
-        <Route path="/user" element={
-          <ProtectedRoute allowedRoles={["user"]}>
-            <UserDashboard />
-          </ProtectedRoute>
-        } />
+          <Route path="/user" element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <UserDashboard />
+            </ProtectedRoute>
+          } />
 
-        <Route path="/unauthorized" element={<Unauthorized />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/unauthorized" element={<Unauthorized />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

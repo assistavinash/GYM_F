@@ -401,7 +401,7 @@ export default function Header() {
                       cursor: 'pointer'
                     }
                   }}
-                  onClick={() => {
+                 onClick={() => {
                     // Navigate to the page regardless of submenu
                     navigate(item.link);
                     setOpen(false);
