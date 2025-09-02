@@ -34,7 +34,7 @@ const ForgetPage = () => {
       // First attempt with the original method
       const method = isEmail(contactInfo) ? "email" : "phone";
       try {
-        const response = await axios.post("http://localhost:3000/api/auth/request-reset", {
+  const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
           email: isEmail(contactInfo) ? contactInfo : undefined,
           phone: isPhoneNumber(contactInfo) ? contactInfo : undefined,
           method: method
@@ -52,7 +52,7 @@ const ForgetPage = () => {
         if (method === "phone" && error.response?.data?.message?.includes("SMS failed")) {
           try {
             setMessage("SMS delivery failed. Attempting to send OTP via email...");
-            const emailResponse = await axios.post("http://localhost:3000/api/auth/request-reset", {
+            const emailResponse = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
               method: "email",
               phone: contactInfo, // Send phone number so backend can lookup associated email
               useEmailFallback: true // Signal backend to use email fallback
@@ -79,7 +79,7 @@ const ForgetPage = () => {
     setMessage("");
 
     try {
-      await axios.post("http://localhost:3000/api/auth/reset-password", {
+  await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
         email: isEmail(contactInfo) ? contactInfo : undefined,
         phone: isPhoneNumber(contactInfo) ? contactInfo : undefined,
         otp,

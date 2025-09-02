@@ -32,7 +32,7 @@ const RegisterPage = () => {
         return;
       }
 
-      const res = await axios.post("http://localhost:3000/api/auth/register", formData);
+  const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);
       
       setSuccess("Registration successful! Logging you in...");
       
