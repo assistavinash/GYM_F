@@ -141,7 +141,7 @@ export default function ClassesPreview() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-8">
           {filteredClasses.map((cls, idx) => (
             <div
-              key={cls.id}
+              key={`${cls.id}-${idx}`}
               className={`group relative overflow-hidden rounded-3xl bg-transparent border border-gray-700/50 backdrop-blur-sm transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-xl shadow-black/50 ${idx === 3 ? 'md:hidden' : ''}`}
               style={{
                 animationDelay: `${idx * 0.2}s`,

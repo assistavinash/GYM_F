@@ -328,7 +328,7 @@ function TrainerDashboard() {
                   <h3 className="text-xl font-bold text-white mb-4">Certifications</h3>
                   <div className="flex flex-wrap gap-2">
                     {trainerProfile.certifications.map((cert, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-yellow-400/20 rounded-full text-yellow-400 text-sm border border-yellow-400/30">
+                      <span key={`speciality-${idx}`} className="px-3 py-1 bg-yellow-400/20 rounded-full text-yellow-400 text-sm border border-yellow-400/30">
                         {cert}
                       </span>
                     ))}

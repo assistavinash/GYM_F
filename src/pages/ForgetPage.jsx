@@ -34,7 +34,7 @@ const ForgetPage = () => {
       // First attempt with the original method
       const method = isEmail(contactInfo) ? "email" : "phone";
       try {
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
           email: isEmail(contactInfo) ? contactInfo : undefined,
           phone: isPhoneNumber(contactInfo) ? contactInfo : undefined,
           method: method
@@ -79,7 +79,7 @@ const ForgetPage = () => {
     setMessage("");
 
     try {
-  await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
         email: isEmail(contactInfo) ? contactInfo : undefined,
         phone: isPhoneNumber(contactInfo) ? contactInfo : undefined,
         otp,

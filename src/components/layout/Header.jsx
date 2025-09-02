@@ -518,7 +518,7 @@ export default function Header() {
       </nav>
 
       {/* Compact CSS Animations */}
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes dockPopup {
           0% {
             opacity: 0;

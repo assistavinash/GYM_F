@@ -21,7 +21,7 @@ const ForgetForm = () => {
     try {
       if (step === 1) {
         // Request OTP
-  const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/request-reset`, {
           email: otpMethod === "email" ? email : undefined,
           phone: otpMethod === "phone" ? phone : undefined,
           method: otpMethod
@@ -31,7 +31,7 @@ const ForgetForm = () => {
         setStep(2);
       } else {
         // Verify OTP and reset password
-  await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
           email: otpMethod === "email" ? email : undefined,
           phone: otpMethod === "phone" ? phone : undefined,
           otp,

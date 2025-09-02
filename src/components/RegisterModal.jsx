@@ -31,9 +31,7 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
         return;
       }
 
-  const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);
-      
-      setSuccess("Registration successful! Logging you in...");
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);      setSuccess("Registration successful! Logging you in...");
       
       // If registration returns token and user, auto-login
       if (res.data.token && res.data.user) {

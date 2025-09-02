@@ -61,7 +61,7 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
     try {
       // For development, directly compare with verification code
       if (enteredOTP === verificationCode) {
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-phone`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-phone`, {
           userId,
           code: enteredOTP
         });
@@ -80,7 +80,7 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
   // Resend OTP
   const resendOTP = async () => {
     try {
-  await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/resend-code`, { userId });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/resend-code`, { userId });
       setTimer(60);
       setError('');
       // Note: In development, new OTP will be shown in console

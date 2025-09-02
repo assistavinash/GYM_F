@@ -16,7 +16,7 @@ const LoginPage = () => {
       setError("");
       
       // Send the token to your backend
-  const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
         credential: credentialResponse.credential
       });
 
@@ -57,7 +57,7 @@ const LoginPage = () => {
       setIsLoading(true);
       setError("");
       
-  const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         email,
         password
       });

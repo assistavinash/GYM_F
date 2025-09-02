@@ -81,7 +81,7 @@ export default function Features() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
           {features.map((feature, idx) => (
             <div
-              key={idx}
+              key={`feature-${idx}`}
               onClick={() => handleClick(idx)}
               className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl shadow-2xl p-3 sm:p-6 flex flex-col items-center text-center hover:scale-105 hover:shadow-[0_20px_50px_rgba(250,204,21,0.3)] transition-all duration-500 border border-gray-800 hover:border-[#FACC15]/50 overflow-hidden cursor-pointer sm:cursor-default"
             >
