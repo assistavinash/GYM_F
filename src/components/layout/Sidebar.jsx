@@ -54,7 +54,7 @@ export default function Sidebar({ links = [], onLoginClick, onRegisterClick }) {
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-lg hover:shadow-2xl"
             >
             <img 
-              src="./images/logo.png" 
+              src="./images/Logo.png" 
               alt="Power Point Gym Logo" 
               className="w-full h-full object-contain rounded-full"
             />
