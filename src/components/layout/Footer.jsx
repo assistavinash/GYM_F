@@ -128,7 +128,7 @@ export default function Footer() {
             <div className="flex items-center space-x-4">
               <div className="w-16 hidden sm:block h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
           <img
-            src="./images/logo.png"></img>
+            src="./images/Logo.png"></img>
               </div>
               <div>
                 <Link
