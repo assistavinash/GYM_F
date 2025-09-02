@@ -155,7 +155,7 @@ export function Hero() {
               
             >
                   <img 
-              src="./public/images/logo.png" 
+              src="./images/logo.png" 
               alt="Power Point Gym Logo" 
               className="w-full h-full object-contain rounded-full"
             />
@@ -286,7 +286,7 @@ export function Hero() {
             className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-white rounded-full flex items-center justify-center shadow-2xl border-2 border-white/20"
           >
             <img 
-              src="./public/images/logo.png" 
+              src="./images/logo.png" 
               alt="Power Point Gym Logo" 
               className="w-full h-full object-contain rounded-full"
             />
