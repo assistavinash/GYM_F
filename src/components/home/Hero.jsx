@@ -73,7 +73,7 @@ export function Hero() {
 
   return (
     <>
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes slideStats {
           0% { transform: translateX(100%); }
           100% { transform: translateX(-100%); }
