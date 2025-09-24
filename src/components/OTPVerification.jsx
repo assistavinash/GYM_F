@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) => {
+const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -59,17 +59,13 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
     setVerifying(true);
 
     try {
-      // For development, directly compare with verification code
-      if (enteredOTP === verificationCode) {
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/verify-phone`, {
-          userId,
-          code: enteredOTP
-        });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/verify`,
+        { userId, code: enteredOTP },
+        { withCredentials: true }
+      );
 
-        onVerificationComplete(response.data);
-      } else {
-        setError('Invalid verification code');
-      }
+      onVerificationComplete(response.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Verification failed');
     } finally {
@@ -90,9 +86,9 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-96 relative">
-        <h2 className="text-2xl font-bold text-center mb-6">Phone Verification</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+      <div className="bg-white p-8 rounded-lg shadow-xl w-[28rem] max-w-[90vw] relative">
+        <h2 className="text-2xl font-bold text-center mb-6">Email Verification</h2>
         
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -101,21 +97,26 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
         )}
 
         <p className="text-center text-gray-600 mb-6">
-          Enter the verification code to verify your phone number
+          Enter the 6-digit verification code sent to your email
         </p>
 
-        <div className="flex justify-center gap-2 mb-6">
+        <div className="grid grid-cols-6 gap-2 justify-center mb-6">
           {otp.map((digit, index) => (
             <input
               key={index}
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
               maxLength="1"
               value={digit}
+              aria-label={`Digit ${index + 1}`}
+              onFocus={(e) => e.target.select()}
               onChange={(e) => handleChange(e.target, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
-              className="w-12 h-12 border-2 rounded-lg text-center text-xl font-bold"
-              style={{ appearance: 'textfield' }}
+              autoFocus={index === 0}
+              className="w-12 h-12 border-2 rounded-lg text-center text-2xl font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
+              style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
             />
           ))}
         </div>
@@ -141,9 +142,11 @@ const OTPVerification = ({ userId, verificationCode, onVerificationComplete }) =
         </div>
 
         {/* For development only */}
-        <div className="mt-4 p-2 bg-gray-100 rounded text-sm text-gray-600">
-          Development OTP: {verificationCode}
-        </div>
+        {devCode && (
+          <div className="mt-4 p-2 bg-gray-100 rounded text-sm text-gray-600 text-center">
+            Development OTP: {devCode}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+
 import { 
   FaBars, 
   FaTimes, 
@@ -84,10 +86,17 @@ export default function Header() {
     return () => clearTimeout(timer);
   }, [text, isDeleting]);
 
-  const handleLogout = () => {
-    setOpen(false);
-    alert('Logged out!');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      setOpen(false);
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      await axios.get(`${API_BASE}/api/auth/logout`, { withCredentials: true });
+    } catch (error) {
+      // ignore
+    } finally {
+      ['user','role','userId','userName','token'].forEach(k => localStorage.removeItem(k));
+      navigate('/');
+    }
   };
 
   const handleMouseEnter = (index) => {
@@ -518,7 +527,7 @@ export default function Header() {
       </nav>
 
       {/* Compact CSS Animations */}
-      <style jsx="true">{`
+      <style>{`
         @keyframes dockPopup {
           0% {
             opacity: 0;

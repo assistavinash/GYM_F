@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import UsersFetcher from './components/UsersFetcher';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import Home from './pages/Home';
 import Overview from './pages/Overview';
 import SuccessStories from './pages/SuccessStories';
@@ -36,8 +36,8 @@ import ForgetPage from './pages/ForgetPage';
 import AdminDashboard from './pages/AdminDashboard';
 import TrainerDashboard from './pages/TrainerDashboard';
 import UserDashboard from './pages/UserDashboard';
-import Unauthorized from './pages/Unauthorized';
-import ProtectedRoute from './components/ProtectedRoute';
+
+// import ProtectedRoute from './components/ProtectedRoute';
 import Cardio from './pages/Cardio';
 import Yoga from './pages/Yoga';
 import Nutrition from './pages/Nutrition';
@@ -48,9 +48,50 @@ import Refund from './pages/Refund';
 import Sitemap from './pages/Sitemap';
 
 function App() {
+  // Inline server-verified auth + role guard (no new files)
+  const Guard = ({ need, children }) => {
+    const [allow, setAllow] = useState(false);
+    const [checked, setChecked] = useState(false);
+
+    useEffect(() => {
+      let alive = true;
+      (async () => {
+        try {
+          const res = await fetch('http://localhost:3000/api/auth/user', {
+            method: 'GET',
+            credentials: 'include',
+            headers: { 'Accept': 'application/json' }
+          });
+          if (!res.ok) {
+            if (alive) window.location.replace('/login');
+            return;
+          }
+            const data = await res.json();
+            const role = (data?.user?.role || '').toLowerCase();
+            // If required role mismatch -> send to their own dashboard
+            if (need && role !== need.toLowerCase()) {
+              const target = role === 'admin' ? '/admin' : (role === 'trainer' || role === 'traniner') ? '/trainer' : '/user';
+              if (alive) window.location.replace(target);
+              return;
+            }
+            if (alive) setAllow(true);
+        } catch (e) {
+          if (alive) window.location.replace('/login');
+        } finally {
+          if (alive) setChecked(true);
+        }
+      })();
+      return () => { alive = false; };
+    }, [need]);
+
+    if (!checked) return null; // could show loader
+    if (!allow) return null;
+    return children;
+  };
+
   return (
     <>
-      <UsersFetcher />
+      {/* UsersFetcher intentionally disabled */}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -99,26 +140,11 @@ function App() {
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="/faq" element={<Faq />} />
 
-          {/* Protected Routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          } />
+          {/* Protected (server token check) */}
+          <Route path="/admin" element={<Guard need="admin"><AdminDashboard /></Guard>} />
+          <Route path="/trainer" element={<Guard need="trainer"><TrainerDashboard /></Guard>} />
+          <Route path="/user" element={<Guard need="user"><UserDashboard /></Guard>} />
 
-          <Route path="/trainer" element={
-            <ProtectedRoute allowedRoles={["trainer"]}>
-              <TrainerDashboard />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/user" element={
-            <ProtectedRoute allowedRoles={["user"]}>
-              <UserDashboard />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </BrowserRouter>
     </>

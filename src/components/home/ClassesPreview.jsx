@@ -225,7 +225,7 @@ export default function ClassesPreview() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

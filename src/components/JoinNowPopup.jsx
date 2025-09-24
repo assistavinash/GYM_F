@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { sendGymEnquiry } from "../services/api";
+
 
 const FITNESS_GOALS = [
   "Weight Loss",
@@ -79,7 +79,7 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
     if (Object.keys(errs).length) return;
     setSubmitted(true);
     try {
-      await sendGymEnquiry({
+      await enquiryService.sendGymEnquiry({
         name: fields.name,
         whatsapp: fields.whatsapp,
         email: fields.email,

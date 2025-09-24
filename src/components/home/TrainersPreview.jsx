@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dumbbell, Flower2, Zap, ArrowRight, Star, Award, Users, Clock } from 'lucide-react';
 
 import { useEffect } from 'react';
-import { getTrainers } from '../../services/trainerApi';
+
 
 const iconMap = {
   Strength: <Dumbbell className="w-6 h-6" />,
@@ -16,17 +16,22 @@ export default function TrainersPreview() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [trainers, setTrainers] = useState([]);
 
-  useEffect(() => {
-    async function fetchTrainers() {
-      try {
-        const data = await getTrainers();
-        setTrainers(data.map(tr => ({ ...tr, icon: iconMap[tr.category] })));
-      } catch (err) {
-        console.error('Failed to fetch trainers:', err);
-      }
-    }
-    fetchTrainers();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchTrainers() {
+  //     try {
+  //       const data = await getTrainers();
+  //       console.log('Fetched trainers:', data); // Debug log
+  //       setTrainers(data.map(tr => ({ 
+  //         ...tr, 
+  //         id: tr._id || tr.id, // Ensure id field exists
+  //         icon: iconMap[tr.category] 
+  //       })));
+  //     } catch (err) {
+  //       console.error('Failed to fetch trainers:', err);
+  //     }
+  //   }
+  //   fetchTrainers();
+  // }, []);
 
   const filters = ['All', 'Strength', 'Wellness', 'Cardio'];
   const filteredTrainers = activeFilter === 'All' 
@@ -86,7 +91,7 @@ export default function TrainersPreview() {
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
           {filteredTrainers.map((trainer, idx) => (
             <div
-              key={trainer.id}
+              key={trainer.id || trainer._id || `trainer-${idx}`}
               className="group relative overflow-hidden rounded-3xl bg-transparent border border-gray-700/50 backdrop-blur-sm transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-xl shadow-black/50"
               style={{
                 animationDelay: `${idx * 0.2}s`,
@@ -171,7 +176,7 @@ export default function TrainersPreview() {
           </div>
         </div>
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

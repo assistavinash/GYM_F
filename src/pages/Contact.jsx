@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, User, MessageSquare, Clock, CheckCircle } from 'lucide-react';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
-import { sendVerificationEmail, sendContactForm } from '../services/contactApi';
+
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({

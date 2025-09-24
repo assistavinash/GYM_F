@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { createClass, getClasses } from '../services/api';
-import { updateClass } from '../services/classApi';
+
+
 import Footer from '../components/layout/Footer';
 
 function TrainerDashboard() {
@@ -53,7 +54,9 @@ function TrainerDashboard() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const data = await getClasses(); // data is array, not { classes }
+        const API_BASE = import.meta.env.VITE_API_URL || '';
+        const response = await axios.get(`${API_BASE}/api/classes`);
+        const data = response.data; // Extract data from response
         const mapped = Array.isArray(data) ? data.map(backendClass => ({
           id: backendClass._id || backendClass.id,
           name: backendClass.name,
@@ -112,7 +115,8 @@ function TrainerDashboard() {
           capacity: parseInt(newClass.capacity)
         };
         console.log('Class payload:', classData);
-        const res = await createClass(classData);
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+  const res = await axios.post(`${API_BASE}/api/classes`, classData, { withCredentials: true });
         setShowAddClass(false);
         setNewClass({
           name: '',
@@ -123,8 +127,8 @@ function TrainerDashboard() {
           scheduleTime: ''
         });
         // Refetch classes
-        const updated = await getClasses();
-        const mapped = Array.isArray(updated) ? updated.map(backendClass => ({
+        const updated = await axios.get(`${API_BASE}/api/classes`);
+        const mapped = Array.isArray(updated.data) ? updated.data.map(backendClass => ({
           id: backendClass._id || backendClass.id,
           name: backendClass.name,
           type: backendClass.description,
@@ -185,11 +189,12 @@ function TrainerDashboard() {
           capacity: parseInt(editClassData.capacity)
           // Add other fields as needed
         };
-        await updateClass(editClassData.id, payload);
+        const API_BASE = import.meta.env.VITE_API_URL || '';
+        await axios.put(`${API_BASE}/api/classes/${editClassData.id}`, payload, { withCredentials: true });
         setShowEditClass(false);
         // Refetch classes
-        const updated = await getClasses();
-        const mapped = Array.isArray(updated) ? updated.map(backendClass => ({
+        const updated = await axios.get(`${API_BASE}/api/classes`);
+        const mapped = Array.isArray(updated.data) ? updated.data.map(backendClass => ({
           id: backendClass._id || backendClass.id,
           name: backendClass.name,
           type: backendClass.description,

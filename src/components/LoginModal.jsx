@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 
 const LoginModal = ({ onClose, onSwitchToRegister }) => {
+  // Fallback API base for local dev if env is missing
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,17 +18,19 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
       setError("");
       
       // Send the token to your backend
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
+      const res = await axios.post(`${API_BASE}/api/auth/google`, {
         credential: credentialResponse.credential
-      });
+      }, { withCredentials: true });
 
-      const { token, user } = res.data;
+      const { user } = res.data;
       
-      // Store auth data
-      localStorage.setItem('token', token);
+      // Store auth data (token is in httpOnly cookie)
       localStorage.setItem('role', user.role);
       localStorage.setItem('userId', user.id);
       localStorage.setItem('userName', user.name);
+      localStorage.setItem('user', JSON.stringify(user));
+      // Backward-compat placeholder
+      localStorage.setItem('token', 'cookie');
 
       // Close modal and redirect based on role
       onClose();
@@ -58,18 +62,19 @@ const LoginModal = ({ onClose, onSwitchToRegister }) => {
       setIsLoading(true);
       setError("");
       
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
+      const res = await axios.post(`${API_BASE}/api/auth/login`, {
         email,
         password
-      });
+      }, { withCredentials: true });
 
-      const { token, user } = res.data;
+      const { user } = res.data;
       
       // Store auth data
-      localStorage.setItem('token', token);
       localStorage.setItem('role', user.role);
       localStorage.setItem('userId', user.id);
       localStorage.setItem('userName', user.name);
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', 'cookie');
 
       // Close modal and redirect based on role
       onClose();

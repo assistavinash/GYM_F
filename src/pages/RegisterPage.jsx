@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import OTPVerification from "../components/OTPVerification";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [pendingUserId, setPendingUserId] = useState(null);
+  const [devCode, setDevCode] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,35 +35,16 @@ const RegisterPage = () => {
         return;
       }
 
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);
-      
-      setSuccess("Registration successful! Logging you in...");
-      
-      // If registration returns token and user, auto-login
-      if (res.data.token && res.data.user) {
-        const { token, user } = res.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', user.role);
-        localStorage.setItem('userId', user.id);
-        localStorage.setItem('userName', user.name);
-        
-        setTimeout(() => {
-          switch(user.role) {
-            case 'admin':
-              navigate('/admin');
-              break;
-            case 'trainer':
-              navigate('/trainer');
-              break;
-            default:
-              navigate('/user');
-          }
-        }, 1500);
-      } else {
-        // If no auto-login, redirect to login page
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        formData,
+        { withCredentials: true }
+      );
+      // Expect verificationPending and userId
+      if (res.data.verificationPending && res.data.userId) {
+        setSuccess("Verification code sent to your email. Please verify to complete registration.");
+        setPendingUserId(res.data.userId);
+        if (res.data.devCode) setDevCode(res.data.devCode);
       }
     } catch (error) {
       console.error("Registration error:", error.response?.data);
@@ -70,7 +54,7 @@ const RegisterPage = () => {
 
   return (
     // Backdrop - Full screen overlay with stronger blur
-    <div className="fixed inset-0 backdrop-blur-md bg-white/10 flex items-center justify-center z-50"
+  <div className="fixed inset-0 backdrop-blur-md bg-white/10 flex items-center justify-center z-50"
          onClick={() => navigate('/')}>
       {/* Modal */}
       <div className="bg-white p-8 rounded-lg shadow-xl w-96 relative border border-gray-200 max-h-[90vh] overflow-y-auto"
@@ -170,6 +154,28 @@ const RegisterPage = () => {
           </p>
         </form>
       </div>
+      {pendingUserId && (
+        <OTPVerification
+          userId={pendingUserId}
+          devCode={devCode}
+          onVerificationComplete={(data) => {
+            // After verify, backend sets cookie and returns user
+            const { user } = data;
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('role', user.role);
+            switch (user.role) {
+              case 'admin':
+                navigate('/admin');
+                break;
+              case 'trainer':
+                navigate('/trainer');
+                break;
+              default:
+                navigate('/user');
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

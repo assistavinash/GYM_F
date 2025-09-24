@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { adminService } from '../services/api';
+import axios from 'axios';
 
 function UsersManagement() {
   const [users, setUsers] = useState([]);
@@ -21,7 +21,8 @@ function UsersManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await adminService.getAllUsers();
+  const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`, { withCredentials: true });
+  const data = res.data;
       
       // Simple pagination logic for demo
       const itemsPerPage = 10;

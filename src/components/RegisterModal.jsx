@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import OTPVerification from "./OTPVerification";
 
 const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [pendingUserId, setPendingUserId] = useState(null);
+  const [devCode, setDevCode] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,35 +34,15 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
         return;
       }
 
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);      setSuccess("Registration successful! Logging you in...");
-      
-      // If registration returns token and user, auto-login
-      if (res.data.token && res.data.user) {
-        const { token, user } = res.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', user.role);
-        localStorage.setItem('userId', user.id);
-        localStorage.setItem('userName', user.name);
-        
-        // Close modal and redirect
-        onClose();
-        setTimeout(() => {
-          switch(user.role) {
-            case 'admin':
-              navigate('/admin');
-              break;
-            case 'trainer':
-              navigate('/trainer');
-              break;
-            default:
-              navigate('/user');
-          }
-        }, 1500);
-      } else {
-        // If no auto-login, show success and switch to login
-        setTimeout(() => {
-          onSwitchToLogin();
-        }, 1500);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/register`,
+        formData,
+        { withCredentials: true }
+      );
+      if (res.data.verificationPending && res.data.userId) {
+        setSuccess("Verification code sent to your email. Please verify to complete registration.");
+        setPendingUserId(res.data.userId);
+        if (res.data.devCode) setDevCode(res.data.devCode);
       }
     } catch (error) {
       console.error("Registration error:", error.response?.data);
@@ -138,17 +121,47 @@ const RegisterModal = ({ onClose, onSwitchToLogin }) => {
             {/* Role selection removed, default is 'user' */}
           </div>
 
+          {/* Submit button - previously missing */}
+          <button
+            type="submit"
+            className="w-full bg-gray-900 text-white p-3 rounded-lg hover:bg-gray-800 transform hover:scale-[1.02] transition-all duration-200 font-semibold shadow-sm"
+          >
+            Register
+          </button>
+
           <p className="text-center text-gray-700 mt-4">
             Already have an account?{" "}
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-white bg-black font-medium hover:text-black hover:bg-gray-100 hover:underline transition-colors duration-200 ml-10 px-2 py-1 rounded border border-gray-300"
+              className="text-gray-900 hover:text-gray-800 font-medium hover:underline"
             >
               Login
             </button>
           </p>
         </form>
+        {pendingUserId && (
+          <OTPVerification
+            userId={pendingUserId}
+            devCode={devCode}
+            onVerificationComplete={(data) => {
+              const { user } = data;
+              localStorage.setItem('user', JSON.stringify(user));
+              localStorage.setItem('role', user.role);
+              onClose();
+              switch (user.role) {
+                case 'admin':
+                  navigate('/admin');
+                  break;
+                case 'trainer':
+                  navigate('/trainer');
+                  break;
+                default:
+                  navigate('/user');
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );

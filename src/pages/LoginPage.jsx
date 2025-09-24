@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
+// Ensure cookies are sent/received for auth
+axios.defaults.withCredentials = true;
+
+// Fallback API base for local dev if env is missing
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -10,23 +15,51 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // If already authenticated (cookie present), redirect to appropriate dashboard
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get(`${API_BASE}/api/auth/user`, { withCredentials: true });
+        const u = res.data?.user;
+        if (u?.role) {
+          switch (u.role) {
+            case 'admin':
+              navigate('/admin');
+              break;
+            case 'trainer':
+              navigate('/trainer');
+              break;
+            default:
+              navigate('/user');
+          }
+        }
+      } catch (_) {
+        // not logged in, stay on login page
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       setIsLoading(true);
       setError("");
       
-      // Send the token to your backend
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
-        credential: credentialResponse.credential
-      });
+      // Send the token to your backend (cookie set via Set-Cookie)
+      const res = await axios.post(
+        `${API_BASE}/api/auth/google`,
+        { credential: credentialResponse.credential },
+        { withCredentials: true }
+      );
 
-      const { token, user } = res.data;
-      
-      // Store auth data
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', user.role);
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('userName', user.name); // Store user name
+  const { user } = res.data;
+  // Store minimal user info for client routing (JWT stays in httpOnly cookie)
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('role', user.role);
+  localStorage.setItem('userId', user.id);
+  localStorage.setItem('userName', user.name);
+  // Backward-compat: some pages still check localStorage 'token'
+  localStorage.setItem('token', 'cookie');
 
       // Redirect based on role
       switch(user.role) {
@@ -57,18 +90,20 @@ const LoginPage = () => {
       setIsLoading(true);
       setError("");
       
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        email,
-        password
-      });
+      const res = await axios.post(
+        `${API_BASE}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-      const { token, user } = res.data;
-      
-      // Store auth data
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', user.role);
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('userName', user.name); // Store user name
+  const { user } = res.data;
+  // Store user for role-based navigation
+  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('role', user.role);
+  localStorage.setItem('userId', user.id);
+  localStorage.setItem('userName', user.name);
+  // Backward-compat: some pages still check localStorage 'token'
+  localStorage.setItem('token', 'cookie');
 
       // Show success message briefly
       setError(""); // Clear any previous errors
@@ -88,8 +123,8 @@ const LoginPage = () => {
       }, 500);
 
     } catch (error) {
-      console.error("Login error:", error.response?.data);
-      setError(error.response?.data?.message || "Invalid email or password");
+      console.error("Login error:", error?.response?.data || error);
+      setError(error?.response?.data?.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }

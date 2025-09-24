@@ -10,16 +10,19 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
-        email,
-        password,
-      });
+      axios.defaults.withCredentials = true;
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
       console.log("Login Success", res.data);
 
-      // Store auth data
-      const { token, user } = res.data;
-      localStorage.setItem('token', token);
+      // Store user data (token is http-only cookie)
+      const { user } = res.data;
+      localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('role', user.role);
+      localStorage.setItem('token', 'cookie');
 
       // Navigate based on role
       if (user.role === 'admin') navigate('/admin');
@@ -27,8 +30,8 @@ const LoginForm = () => {
       else navigate('/user');
 
     } catch (error) {
-      console.log("Login error details:", error.response?.data); // 👈 shows exact cause
-      alert(error.response?.data?.message || "Login failed");
+      console.log("Login error details:", error?.response?.data);
+      alert(error?.response?.data?.message || "Login failed");
     }
   };
 
