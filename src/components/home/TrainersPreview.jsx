@@ -15,27 +15,56 @@ export default function TrainersPreview() {
   const [hoveredTrainer, setHoveredTrainer] = useState(null);
   const [activeFilter, setActiveFilter] = useState('All');
   const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   async function fetchTrainers() {
-  //     try {
-  //       const data = await getTrainers();
-  //       console.log('Fetched trainers:', data); // Debug log
-  //       setTrainers(data.map(tr => ({ 
-  //         ...tr, 
-  //         id: tr._id || tr.id, // Ensure id field exists
-  //         icon: iconMap[tr.category] 
-  //       })));
-  //     } catch (err) {
-  //       console.error('Failed to fetch trainers:', err);
-  //     }
-  //   }
-  //   fetchTrainers();
-  // }, []);
+  // Backend base (matches login pattern)
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const res = await fetch(`${API_BASE}/api/trainers`, {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          // public endpoint, no credentials needed right now
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error('Unexpected response');
+        const mapped = data.map(tr => {
+          const primarySpec = Array.isArray(tr.specialization) && tr.specialization.length > 0 ? tr.specialization[0] : 'Strength';
+          return {
+            id: tr._id || tr.id,
+            name: tr.name || 'Trainer',
+            specialty: primarySpec,
+            description: tr.bio || 'Certified professional trainer committed to your progress.',
+            experience: tr.experience ? `${tr.experience} yrs` : '—',
+            clients: tr.clients || tr.clientCount || '—',
+            rating: tr.rating || '5.0',
+            image: tr.image || '/Logo.png', // fallback existing asset
+            category: primarySpec,
+            icon: iconMap[primarySpec] || iconMap['Strength'],
+            bgGlow: 'ring-2 ring-yellow-400/20'
+          };
+        });
+        if (active) setTrainers(mapped);
+      } catch (e) {
+        console.error('Failed to fetch trainers:', e);
+        if (active) setError('Trainers load failed');
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => { active = false; };
+  }, [API_BASE]);
 
   const filters = ['All', 'Strength', 'Wellness', 'Cardio'];
-  const filteredTrainers = activeFilter === 'All' 
-    ? trainers 
+  const filteredTrainers = activeFilter === 'All'
+    ? trainers
     : trainers.filter(trainer => trainer.category === activeFilter);
 
   // ...existing code...
@@ -88,8 +117,14 @@ export default function TrainersPreview() {
           </a>
         </div>
         {/* Trainers Grid - Mobile 2 cols, Desktop 2-3 cols */}
+        {error && (
+          <div className="text-center text-red-400 mb-4 text-sm">{error}</div>
+        )}
+        {loading && !error && (
+          <div className="text-center text-gray-400 mb-6 text-sm">Loading trainers...</div>
+        )}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-          {filteredTrainers.map((trainer, idx) => (
+          {!loading && filteredTrainers.map((trainer, idx) => (
             <div
               key={trainer.id || trainer._id || `trainer-${idx}`}
               className="group relative overflow-hidden rounded-3xl bg-transparent border border-gray-700/50 backdrop-blur-sm transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 shadow-xl shadow-black/50"
