@@ -291,12 +291,24 @@ function AdminDashboard() {
     }
   }, [activeTab, fetchStats]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      // Call backend to clear httpOnly cookie
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      await axios.get(`${API_BASE}/api/auth/logout`, { withCredentials: true });
+    } catch (error) {
+      console.warn('Backend logout failed, clearing client storage anyway');
+    } finally {
+      // Clear all client-side tokens and data
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        localStorage.removeItem(key)
+      );
+      // Clear session storage too (if any)
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        sessionStorage.removeItem(key)
+      );
+      navigate('/');
+    }
   };
 
   const renderContent = () => {

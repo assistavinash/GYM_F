@@ -86,9 +86,9 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-[28rem] max-w-[90vw] relative">
-        <h2 className="text-2xl font-bold text-center mb-6">Email Verification</h2>
+    <div className="fixed inset-0 bg-gray-300 bg-opacity-80 flex items-center justify-center z-[9999]">
+      <div className="bg-gray-50 p-8 rounded-lg shadow-xl w-[28rem] max-w-[90vw] relative border border-gray-200">
+        <h2 className="text-2xl font-bold text-center mb-6 text-black">Email Verification</h2>
         
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -96,7 +96,7 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
           </div>
         )}
 
-        <p className="text-center text-gray-600 mb-6">
+        <p className="text-center text-gray-800 mb-6">
           Enter the 6-digit verification code sent to your email
         </p>
 
@@ -115,8 +115,8 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
               autoFocus={index === 0}
-              className="w-12 h-12 border-2 rounded-lg text-center text-2xl font-semibold tracking-widest focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-              style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+              className="w-12 h-12 border-2 border-gray-400 rounded-lg text-center text-2xl font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 shadow-sm"
+              style={{ WebkitAppearance: 'none', MozAppearance: 'textfield', color: '#111827' }}
             />
           ))}
         </div>
@@ -124,7 +124,7 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
         <button
           onClick={verifyOTP}
           disabled={verifying || otp.join('').length !== 6}
-          className="w-full bg-gray-900 text-white p-3 rounded-lg hover:bg-gray-800 
+          className="w-full bg-gray-700 text-white p-3 rounded-lg hover:bg-gray-800 
                    disabled:opacity-50 disabled:cursor-not-allowed mb-4"
         >
           {verifying ? 'Verifying...' : 'Verify'}
@@ -134,7 +134,7 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
           <button
             onClick={resendOTP}
             disabled={timer > 0}
-            className="text-gray-600 hover:text-gray-900 disabled:opacity-50 
+            className="text-gray-700 hover:text-black disabled:opacity-50 
                      disabled:cursor-not-allowed text-sm"
           >
             {timer > 0 ? `Resend code in ${timer}s` : 'Resend code'}
@@ -143,7 +143,7 @@ const OTPVerification = ({ userId, devCode, onVerificationComplete }) => {
 
         {/* For development only */}
         {devCode && (
-          <div className="mt-4 p-2 bg-gray-100 rounded text-sm text-gray-600 text-center">
+          <div className="mt-4 p-2 bg-gray-200 rounded text-sm text-gray-800 text-center border border-gray-300">
             Development OTP: {devCode}
           </div>
         )}

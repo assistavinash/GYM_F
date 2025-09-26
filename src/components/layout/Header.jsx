@@ -90,11 +90,19 @@ export default function Header() {
     try {
       setOpen(false);
       const API_BASE = import.meta.env.VITE_API_URL || '';
+      // Call backend to clear httpOnly cookie
       await axios.get(`${API_BASE}/api/auth/logout`, { withCredentials: true });
     } catch (error) {
-      // ignore
+      console.warn('Backend logout failed, clearing client storage anyway');
     } finally {
-      ['user','role','userId','userName','token'].forEach(k => localStorage.removeItem(k));
+      // Clear all client-side tokens and data
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        localStorage.removeItem(key)
+      );
+      // Clear session storage too (if any)
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        sessionStorage.removeItem(key)
+      );
       navigate('/');
     }
   };

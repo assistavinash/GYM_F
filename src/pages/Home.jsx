@@ -182,6 +182,17 @@ const Home = () => {
       )}
 
       <JoinNowPopup show={showJoinNow} onClose={() => setShowJoinNow(false)} />
+      
+      {/* Test button for popup */}
+      <button 
+        onClick={() => {
+          sessionStorage.removeItem('gymPopupClosed');
+          setShowJoinNow(true);
+        }}
+        className="fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-600 transition-colors z-50"
+      >
+        Test Popup
+      </button>
     </div>
   );
 };

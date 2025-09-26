@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import enquiryService from "../services/enquiryService";
 
 const FITNESS_GOALS = [
   "Weight Loss",
@@ -37,6 +37,9 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
   const [fields, setFields] = useState(initialState);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [showOTPField, setShowOTPField] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [show, setShow] = useState(() => {
     // Only show if not closed before in this session
     return sessionStorage.getItem('gymPopupClosed') === 'true' ? false : true;
@@ -50,9 +53,9 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
   }, [showProp]);
 
   const handleClose = () => {
-  setShow(false);
-  sessionStorage.setItem('gymPopupClosed', 'true');
-  if (onClose) onClose();
+    setShow(false);
+    sessionStorage.setItem('gymPopupClosed', 'true');
+    if (onClose) onClose();
   };
 
   useEffect(() => {
@@ -74,22 +77,58 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form submitted with fields:', fields);
     const errs = validate(fields);
     setErrors(errs);
-    if (Object.keys(errs).length) return;
+    if (Object.keys(errs).length) {
+      console.log('Validation errors:', errs);
+      return;
+    }
     setSubmitted(true);
     try {
-      await enquiryService.sendGymEnquiry({
+      console.log('Sending enquiry to server...');
+      const result = await enquiryService.sendGymEnquiry({
         name: fields.name,
         whatsapp: fields.whatsapp,
         email: fields.email,
         goal: fields.goal,
         time: fields.time
       });
-      onClose();
+      console.log('Enquiry sent successfully:', result);
+      
+      if (result.requiresVerification) {
+        setUserEmail(fields.email);
+        setShowOTPField(true);
+        setSubmitted(false);
+        alert('Verification code sent to your email! Please check your inbox and enter the code below.');
+      } else {
+        alert('Thank you! Your enquiry has been submitted successfully.');
+        handleClose();
+      }
     } catch (error) {
+      console.error('Error submitting enquiry:', error);
       setSubmitted(false);
-      setErrors({ form: error?.response?.data?.error || "Failed to submit. Please try again." });
+      setErrors({ form: error?.response?.data?.error || error?.response?.data?.message || "Failed to submit. Please try again." });
+    }
+  };
+
+  const handleOTPSubmit = async (e) => {
+    e.preventDefault();
+    if (!otp || otp.length !== 6) {
+      setErrors({ otp: 'Please enter a valid 6-digit verification code' });
+      return;
+    }
+    
+    setSubmitted(true);
+    try {
+      const result = await enquiryService.verifyOTP(userEmail, otp);
+      console.log('OTP verified successfully:', result);
+      alert('Thank you! Your email has been verified and enquiry sent to our team.');
+      handleClose();
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      setSubmitted(false);
+      setErrors({ otp: error?.response?.data?.error || "Invalid verification code. Please try again." });
     }
   };
 
@@ -116,7 +155,11 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
             >
               ×
             </button>
-            <h2 className="text-2xl font-bold mb-4 text-center text-gray-900">Join Our Gym</h2>
+            <h2 className="text-2xl font-bold mb-4 text-center text-gray-900">
+              {showOTPField ? 'Verify Your Email' : 'Join Our Gym'}
+            </h2>
+            
+            {!showOTPField ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <input
@@ -208,6 +251,46 @@ const JoinNowPopup = ({ show: showProp, onClose }) => {
                 {submitted ? "Submitting..." : "Join Now"}
               </button>
             </form>
+            ) : (
+            <form onSubmit={handleOTPSubmit} className="space-y-4">
+              <p className="text-gray-700 text-center mb-4">
+                We've sent a 6-digit verification code to <strong>{userEmail}</strong>
+              </p>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit verification code"
+                  className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 bg-gray-50 text-gray-900 ${errors.otp ? 'border-red-400' : 'border-gray-300'}`}
+                  value={otp}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/\D/g, '').slice(0, 6));
+                    setErrors(prev => ({ ...prev, otp: undefined }));
+                  }}
+                  maxLength={6}
+                  required
+                />
+                {errors.otp && <p className="text-red-500 text-xs mt-1">{errors.otp}</p>}
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-gray-900 text-white p-3 rounded-lg hover:bg-white hover:text-black font-semibold shadow-md transition-all duration-200"
+                disabled={submitted || otp.length !== 6}
+              >
+                {submitted ? "Verifying..." : "Verify Email"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOTPField(false);
+                  setOtp('');
+                  setErrors({});
+                }}
+                className="w-full bg-gray-500 text-white p-2 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Back to Form
+              </button>
+            </form>
+            )}
           </motion.div>
         </motion.div>
       )}

@@ -80,16 +80,19 @@ function UserDashboard() {
   // Logout handler
   const handleLogout = async () => {
     try {
+      // Call backend to clear httpOnly cookie
       await axios.get(`${API_BASE}/api/auth/logout`, { withCredentials: true });
     } catch (e) {
-      // ignore backend failure; still clear client state
+      console.warn('Backend logout failed, clearing client storage anyway');
     } finally {
-      localStorage.removeItem('user');
-      localStorage.removeItem('role');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('token');
-      // Redirect to home instead of login (user asked why login screen shows)
+      // Clear all client-side tokens and data
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        localStorage.removeItem(key)
+      );
+      // Clear session storage too (if any)
+      ['user', 'role', 'userId', 'userName', 'token'].forEach(key => 
+        sessionStorage.removeItem(key)
+      );
       navigate('/');
     }
   };
